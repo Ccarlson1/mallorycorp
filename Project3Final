@@ -1,0 +1,270 @@
+//Clint Carlson
+//Project 3 
+
+/* main.cpp */
+
+#include <iostream>
+#include <fstream>
+#include"Facebook.h"
+#include <string>
+
+using namespace std;
+
+//main function
+int main()
+{
+    ifstream in;
+    //open the file
+    in.open("C:\\Users\\Madison\\Desktop\\PresidentHomeState.txt");
+
+    //check if file exist
+    if (in.eof())
+    {
+        cout << "File not exist!" << endl;
+        return 1;
+    }
+    //create an object of Facebook class
+    Facebook fbook;
+    string fname;
+
+    while (in)
+    {
+        //read a line from the file
+        getline(in, fname);
+        //display on the screen
+        cout << fname << endl;
+        //enqueue into the Friendlist
+        fbook.addFriend(fname);
+    }
+    //Call firstFriend() function to display on the screen
+    cout << "The first president of the United States of America is named and he state is: ";
+    fbook.firstFriend();
+
+    //Call removeFriend() function
+    fname = fbook.removeFriend();
+    cout << "The name and the home state of the removed president: " << fname << endl;
+
+    //display all the names with their states
+    fbook.printFriendsF();
+
+    //display all the names with their states in reverse orde
+    fbook.printFriendsR();
+
+    //Call resetFriends() to remove all Friends
+    fbook.resetFriends();
+
+    //Call checklist to verify that your Facebook object has an empty Friendlist
+    bool fg = fbook.checklist();
+
+    //report a message on the screen
+    if (fg)
+        cout << "List is empty!" << endl;
+    else
+        cout << "List is not empty!" << endl;
+
+    return 0;
+}
+
+#pragma once
+
+
+/* Facebook.h */
+
+#ifndef FACEBOOK_H
+#define FACEBOOK_H
+
+#include "Queue.h"
+#include <iostream>
+using namespace std;
+
+//Facebook class
+class Facebook
+{
+private:
+    //QueueFriendlist is a Queue object
+    Queue QueueFriendlist;
+    int numofFriends;
+public:
+    //constructor
+    Facebook()
+    {
+        numofFriends = 0;
+    }
+    //add a friendname to the QueueFriendlist
+    void addFriend(string friendname)
+    {
+        QueueFriendlist.enqueue(friendname);
+        numofFriends++;
+    }
+    //remove a friendname from the QueueFriendlist
+    string removeFriend()
+    {
+        return QueueFriendlist.dequeue();
+        numofFriends--;
+    }
+    //print all the Friends from front to the end
+    void printFriendsF()
+    {
+        QueueFriendlist.print();
+    }
+    //print all the Friends from end to the front
+    void printFriendsR()
+    {
+        QueueFriendlist.reversePrint();
+    }
+    //print the Friend who was added first
+    void firstFriend()
+    {
+        cout << QueueFriendlist.peek() << endl;
+    }
+    //reset the QueueFriendlist so that the list can be emptied
+    void resetFriends()
+    {
+        QueueFriendlist.makeEmpty();
+        numofFriends = 0;
+    }
+    // verify the QueueFriendlist is empty
+    bool checklist()
+    {
+        return QueueFriendlist.isEmpty();
+    }
+};
+
+#endif // FACEBOOK_H
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma once
+/* Queue.h */
+
+#ifndef QUEUE_H
+#define QUEUE_H
+
+#include <iostream>
+using namespace std;
+
+//Node structure
+struct Node
+{
+    string data;
+    Node* prev = nullptr;
+    Node* next = nullptr;
+};
+
+//Queue class
+class Queue
+{
+private:
+    Node* front;
+    Node* rear;
+public:
+    //constructor
+    Queue()
+    {
+        front = nullptr;
+        rear = nullptr;
+    }
+    //inserts element to the end
+    void enqueue(string item)
+    {
+        //create a new node
+        Node* newnode = new Node;
+
+        newnode->data = item;
+
+        //check if Queue is empty
+        if (rear == nullptr)
+        {
+            rear = newnode;
+            front = newnode;
+            return;
+        }
+
+        //add the new node at the rear end
+        rear->next = newnode;
+        newnode->prev = rear;
+        //modify rear of the Queue
+        rear = newnode;
+    }
+    //removes the front element
+    string dequeue()
+    {
+        //check if Queue is empty
+        if (isEmpty())
+        {
+            return "";
+        }
+
+        string item = front->data;
+        Node* oldnode = front;
+
+        //delete anode from the front end
+        front = front->next;
+
+        if (front != nullptr)
+            //modify front of the Queue
+            front->prev = nullptr;
+        else
+        {
+            rear = nullptr;
+        }
+
+        delete oldnode;
+
+        return item;
+    }
+    //checks whether the Queue is empty or not
+    bool isEmpty()
+    {
+        return front == nullptr;
+    }
+    //make Queue empty
+    void makeEmpty()
+    {
+        front = rear = nullptr;
+    }
+    //return the topmost element without remove
+    string peek()
+    {
+        if (isEmpty())
+            return "";
+        return front->data;
+    }
+    //prints all the elements from front to the end
+    void print()
+    {
+        if (isEmpty())
+        {
+            cout << "Queue is empty!" << endl;
+            return;
+        }
+
+        Node* tmp = front;
+        while (tmp != nullptr)
+        {
+            cout << tmp->data << " ";
+            tmp = tmp->next;
+        }
+        cout << endl;
+    }
+    //prints all the elements from end to the front
+    void reversePrint()
+    {
+        if (isEmpty())
+        {
+            cout << "Queue is empty!" << endl;
+            return;
+        }
+
+        Node* tmp = rear;
+        while (tmp != nullptr)
+        {
+            cout << tmp->data << " ";
+            tmp = tmp->prev;
+        }
+        cout << endl;
+    }
+};
+
+#endif // QUEUE_H
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
